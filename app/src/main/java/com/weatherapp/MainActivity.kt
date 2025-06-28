@@ -49,8 +49,9 @@ class MainActivity : ComponentActivity() {
             var showDialog by remember { mutableStateOf(false) }
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
-            val launcher = rememberLauncherForActivityResult(contract =
-                ActivityResultContracts.RequestPermission(), onResult = {} )
+            val launcher = rememberLauncherForActivityResult(
+                contract =
+                    ActivityResultContracts.RequestPermission(), onResult = {})
             WeatherAppTheme {
                 if (showDialog) CityDialog(
                     onDismiss = { showDialog = false },
@@ -61,7 +62,10 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Bem-vindo/a!") },
+                            title = {
+                                val name = viewModel.user?.name?: "[não logado]"
+                                Text("Bem-vindo/a! $name")
+                            },
                             actions = {
                                 IconButton(onClick = {
                                     Firebase.auth.signOut()
