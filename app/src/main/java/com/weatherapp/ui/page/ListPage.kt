@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,14 +35,19 @@ fun ListPage(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
-    val cityList = viewModel.cities
     val activity = LocalContext.current as? Activity
+    val cityList = viewModel.cities
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(cityList, key = { it.name }) { city ->
+        items(cityList) { city ->
+            LaunchedEffect(city.name) {
+                if (city.weather == null) {
+                    viewModel.loadWeather(city.name)
+                }
+            }
             CityItem(city = city, onClose = {
                 viewModel.remove(city)
                 Toast.makeText(activity, "${city.name} removida", Toast.LENGTH_SHORT).show()
@@ -72,16 +78,12 @@ fun CityItem(
         )
         Spacer(modifier = Modifier.size(12.dp))
         Column(modifier = modifier.weight(1f)) {
-            Text(
-                modifier = Modifier,
+            Text(modifier = Modifier,
                 text = city.name,
-                fontSize = 24.sp
-            )
-            Text(
-                modifier = Modifier,
-                text = city.weather ?: "Carregando clima...",
-                fontSize = 16.sp
-            )
+                fontSize = 24.sp)
+            Text(modifier = Modifier,
+                text = city.weather?.desc?:"carregando...",
+                fontSize = 16.sp)
         }
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "Close")
