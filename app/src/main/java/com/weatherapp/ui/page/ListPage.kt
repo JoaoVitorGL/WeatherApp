@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.weatherapp.model.City
+import com.weatherapp.ui.nav.Route
 import com.weatherapp.viewmodel.MainViewModel
 
 @SuppressLint("ContextCastToActivity")
@@ -53,7 +54,7 @@ fun ListPage(
                 Toast.makeText(activity, "${city.name} removida", Toast.LENGTH_SHORT).show()
             }, onClick = {
                 viewModel.city = city
-                Toast.makeText(activity, "${city.name}", Toast.LENGTH_SHORT).show()
+                viewModel.page = Route.Home
             })
         }
     }
