@@ -11,6 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getDrawable
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -19,6 +22,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.weatherapp.R
 import com.weatherapp.viewmodel.MainViewModel
 
 @Composable
@@ -50,10 +54,20 @@ fun MapPage(viewModel: MainViewModel) {
                         viewModel.loadWeather(it.name)
                     }
                 }
-                Marker(
-                    state = MarkerState(position = it.location!!),
+                LaunchedEffect(it.weather) {
+                    if (it.weather != null && it.weather!!.bitmap == null) {
+                        viewModel.loadBitmap(it.name)
+                    }
+                }
+                val image = it.weather?.bitmap ?:
+                getDrawable(context, R.drawable.loading)!!
+                    .toBitmap()
+                val marker = BitmapDescriptorFactory
+                    .fromBitmap(image.scale(120,120))
+                Marker( state = MarkerState(position = it.location!!),
                     title = it.name,
-                    snippet = it.weather?.desc ?: "Carregando..."
+                    icon = marker,
+                    snippet = it.weather?.desc?:"Carregando..."
                 )
             }
         }
