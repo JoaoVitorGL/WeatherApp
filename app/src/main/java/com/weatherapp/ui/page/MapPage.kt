@@ -56,7 +56,7 @@ fun MapPage(viewModel: MainViewModel) {
                 }
                 LaunchedEffect(it.weather) {
                     if (it.weather != null && it.weather!!.bitmap == null) {
-                        viewModel.loadBitmap(it.name)
+                        viewModel.loadBitmap(it)
                     }
                 }
                 val image = it.weather?.bitmap ?:
