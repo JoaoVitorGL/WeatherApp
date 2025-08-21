@@ -43,7 +43,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.weatherapp.api.WeatherService
 import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.db.local.LocalDatabase
 import com.weatherapp.monitor.ForecastMonitor
+import com.weatherapp.repo.Repository
 import com.weatherapp.viewmodel.MainViewModelFactory
 
 class MainActivity : ComponentActivity() {
@@ -53,10 +55,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val fbDB = remember { FBDatabase() }
+            val uid = Firebase.auth.currentUser?.uid ?: "weather_local_db"
+            val localDB = remember { LocalDatabase(this, uid) }
+            val repository = remember { Repository(fbDB, localDB) }
             val weatherService = remember { WeatherService() }
             val monitor = remember { ForecastMonitor(this.applicationContext) }
-            val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB, weatherService, monitor)
+            val viewModel: MainViewModel = viewModel(
+                factory = MainViewModelFactory(repository, weatherService, monitor)
             )
             DisposableEffect(Unit) {
                 val listener = Consumer<Intent> { intent ->
@@ -86,7 +91,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {
-                                val name = viewModel.user?.name?: "[não logado]"
+                                val name = viewModel.user?.name ?: "[não logado]"
                                 Text("Bem-vindo/a! $name")
                             },
                             actions = {
