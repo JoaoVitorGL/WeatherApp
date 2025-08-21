@@ -31,12 +31,16 @@ class MainViewModel(
     private var _city = mutableStateOf<City?>(null)
     var city: City?
         get() = _city.value
-        set(tmp) { _city.value = tmp?.copy() }
+        set(tmp) {
+            _city.value = tmp?.copy()
+        }
 
     private var _page = mutableStateOf<Route>(Route.Home)
     var page: Route
         get() = _page.value
-        set(tmp) { _page.value = tmp }
+        set(tmp) {
+            _page.value = tmp
+        }
 
     init {
         db.setListener(this)
@@ -75,14 +79,26 @@ class MainViewModel(
     }
 
     override fun onCityUpdated(city: FBCity) {
+        val oldCity = _cities[city.name]
         _cities.remove(city.name)
-        _cities[city.name!!] = city.toCity()
-        if (_city.value?.name == city.name) { _city.value = city.toCity() }
+        _cities[city.name!!] = city.toCity().copy(
+            weather = oldCity?.weather,
+            forecast = oldCity?.forecast
+        )
+        if (_city.value?.name == city.name) {
+            _city.value = _cities[city.name]
+        }
     }
 
     override fun onCityRemoved(city: FBCity) {
         _cities.remove(city.name)
-        if (_city.value?.name == city.name) { _city.value = null }
+        if (_city.value?.name == city.name) {
+            _city.value = null
+        }
+    }
+
+    fun update(city: City) {
+        db.update(city = city.toFBCity())
     }
 
     fun loadWeather(name: String) {
